@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arsip Data Pokir DPRD Kabupaten Lingga</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .bg-custom-blue { background-color: #1e3a8a; }
+        .text-custom-blue { color: #1e3a8a; }
+        .bg-custom-green { background-color: #10b981; }
+        .text-custom-green { color: #10b981; }
+        .bg-custom-orange { background-color: #f97316; }
+        .border-custom-orange { border-color: #f97316; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <div id="loginPage" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-emerald-800 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full p-8 border-t-4 border-orange-500">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-box-archive text-4xl text-blue-800"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 uppercase tracking-wide">E-Arsip Pokir</h2>
+                <p class="text-xs text-gray-500 mt-1">DPRD Kabupaten Lingga</p>
+            </div>
+
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-6 rounded-r-lg text-xs text-blue-800">
+                <p class="font-semibold mb-1">💡 Akun Simulasi (Placeholder):</p>
+                <p>• Admin: <b>admin@lingga.go.id</b> (Sandi: admin123)</p>
+                <p>• User: <b>user@lingga.go.id</b> (Sandi: user123)</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2" for="email">Surel / Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input class="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm transition" id="email" type="email" placeholder="nama@instansi.com" required>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2" for="password">Kata Sandi</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input class="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm transition" id="password" type="password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-800 hover:bg-blue-900 text-white font-medium py-2.5 px-4 rounded-lg transition duration-300 shadow-md transform hover:-translate-y-0.5">
+                    Masuk <i class="fa-solid fa-right-to-bracket ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mainApp" class="hidden flex flex-1 flex-col md:flex-row min-h-screen">
+        
+        <aside id="sidebar" class="w-64 bg-blue-900 text-white flex flex-col transition-all duration-300 relative z-20 shadow-xl">
+            <div class="p-5 flex items-center justify-between border-b border-blue-800">
+                <div class="flex items-center space-x-3 sidebar-brand">
+                    <i class="fa-solid fa-building-shield text-2xl text-emerald-400"></i>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wider uppercase leading-none">Pokir DPRD</h1>
+                        <span class="text-[10px] text-gray-300 font-light">Kab. Lingga</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="text-white hover:text-orange-400 transition lg:hidden">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <div class="p-4 bg-blue-950 flex items-center space-x-3 border-b border-blue-800">
+                <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center font-bold text-white shadow" id="userAvatar">A</div>
+                <div>
+                    <p class="text-xs font-semibold text-white truncate max-w-[140px]" id="userProfileName">Nama Pengguna</p>
+                    <span class="inline-block bg-orange-500 text-[9px] uppercase px-2 py-0.5 rounded font-bold mt-0.5" id="userProfileRole">Admin</span>
+                </div>
+            </div>
+
+            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                <button onclick="switchMenu('dashboard')" id="btn-dashboard" class="menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 bg-blue-800 text-white shadow">
+                    <i class="fa-solid fa-chart-pie w-5 text-emerald-400"></i> <span class="nav-text">Dashboard</span>
+                </button>
+                <div class="pt-4 pb-2 px-4 text-[11px] font-bold uppercase tracking-wider text-blue-300 nav-text">Kelompok Dokumen</div>
+                <button onclick="switchMenu('laporan')" id="btn-laporan" class="menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 text-gray-300 hover:bg-blue-800 hover:text-white">
+                    <i class="fa-solid fa-chart-column w-5 text-emerald-400"></i> <span class="nav-text">📊 Laporan</span>
+                </button>
+                <button onclick="switchMenu('pokir2026')" id="btn-pokir2026" class="menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 text-gray-300 hover:bg-blue-800 hover:text-white">
+                    <i class="fa-solid fa-folder-open w-5 text-emerald-400"></i> <span class="nav-text">📥 Pokir DPRD 2026</span>
+                </button>
+                <button onclick="switchMenu('pokir2025')" id="btn-pokir2025" class="menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 text-gray-300 hover:bg-blue-800 hover:text-white">
+                    <i class="fa-solid fa-folder w-5 text-emerald-400"></i> <span class="nav-text">📥 Pokir DPRD 2025</span>
+                </button>
+                <button onclick="switchMenu('rekap')" id="btn-rekap" class="menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 text-gray-300 hover:bg-blue-800 hover:text-white">
+                    <i class="fa-solid fa-file-invoice w-5 text-emerald-400"></i> <span class="nav-text">📝 Rekap Pokir</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-blue-800">
+                <button onclick="handleLogout()" class="w-full flex items-center space-x-3 px-4 py-2.5 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition shadow-md">
+                    <i class="fa-solid fa-right-from-bracket w-5"></i> <span class="nav-text">Keluar</span>
+                </button>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col overflow-x-hidden">
+            <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 z-10">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="text-gray-600 hover:text-blue-900 transition">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <div class="relative w-64 md:w-80">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input id="globalSearch" oninput="handleGlobalSearch(this.value)" class="w-full pl-9 pr-3 py-1.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 focus:bg-white text-sm transition" type="text" placeholder="Cari dokumen global...">
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full font-medium hidden md:block">
+                        <i class="fa-solid fa-calendar-days mr-1 text-orange-500"></i> Tahun Anggaran 2026
+                    </span>
+                </div>
+            </header>
+
+            <main class="p-6 flex-1 bg-gray-50">
+                
+                <div id="view-dashboard" class="content-view space-y-6">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Dashboard Statistik</h2>
+                            <p class="text-sm text-gray-500">Gambaran rekapitulasi data arsip Pokir DPRD Kabupaten Lingga.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-800 flex items-center justify-between transform hover:scale-[1.02] transition">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Dokumen</p>
+                                <h3 class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-total">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-50 text-blue-800 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-emerald-500 flex items-center justify-between transform hover:scale-[1.02] transition">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Laporan</p>
+                                <h3 class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-laporan">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-orange-500 flex items-center justify-between transform hover:scale-[1.02] transition">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pokir DPRD 2026</p>
+                                <h3 class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-2026">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500 flex items-center justify-between transform hover:scale-[1.02] transition">
+                            <div>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pokir DPRD 2025</p>
+                                <h3 class="text-3xl font-extrabold text-gray-800 mt-1" id="stat-2025">0</h3>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-50 text-purple-500 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-folder"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-5 rounded-xl shadow-sm lg:col-span-2">
+                            <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4"><i class="fa-solid fa-chart-bar text-blue-800 mr-2"></i> Grafik Batang Volume Data</h4>
+                            <div class="h-64 relative">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm">
+                            <h4 class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4"><i class="fa-solid fa-chart-pie text-emerald-500 mr-2"></i> Proporsi Kategori</h4>
+                            <div class="h-64 relative flex justify-center">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-category" class="content-view hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800" id="categoryTitle">Kategori Dokumen</h2>
+                            <p class="text-sm text-gray-500">Kelola dan telusuri arsip berkas secara terstruktur.</p>
+                        </div>
+                        <div id="adminActionSection" class="hidden">
+                            <button onclick="openUploadModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm py-2 px-4 rounded-lg shadow transition flex items-center">
+                                <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Unggah Dokumen Baru
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-500" id="tableCountBadge">Menampilkan: 0 Berkas</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-600 uppercase text-[11px] font-bold tracking-wider border-b border-gray-200">
+                                        <th class="py-3 px-5">Nama Dokumen</th>
+                                        <th class="py-3 px-5">Tanggal</th>
+                                        <th class="py-3 px-5">Jenis</th>
+                                        <th class="py-3 px-5">Keterangan</th>
+                                        <th class="py-3 px-5 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="documentTableBody" class="text-sm divide-y divide-gray-100">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <footer class="bg-white border-t border-gray-200 py-4 px-6 text-center text-xs text-gray-500">
+                <p>© 2026 <span class="font-semibold text-blue-900">Sekretariat DPRD Kabupaten Lingga</span>. Aplikasi Arsip Data Pokir - Layanan Digital Modern.</p>
+            </footer>
+        </div>
+    </div>
+
+    <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border-t-4 border-emerald-500">
+            <div class="p-5 bg-gray-50 border-b flex items-center justify-between">
+                <h3 class="font-bold text-gray-800 flex items-center"><i class="fa-solid fa-file-circle-plus text-emerald-500 mr-2"></i> Entri Dokumen Baru</h3>
+                <button onclick="closeUploadModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="uploadForm" onsubmit="handleFormSubmit(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-gray-700 text-xs font-bold uppercase mb-1">Nama Dokumen</label>
+                    <input type="text" id="docName" required class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase mb-1">Tanggal</label>
+                        <input type="date" id="docDate" required class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase mb-1">Kategori Target</label>
+                        <select id="docCategory" class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="laporan">📊 Laporan</option>
+                            <option value="pokir2026">📥 Pokir DPRD 2026</option>
+                            <option value="pokir2025">📥 Pokir DPRD 2025</option>
+                            <option value="rekap">📝 Rekap Pokir</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase mb-1">Jenis Berkas</label>
+                        <input type="text" id="docType" placeholder="PDF / XLSX / DOCX" required class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase mb-1">Keterangan</label>
+                        <input type="text" id="docDesc" placeholder="Sifat / Status data" class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div class="bg-amber-50 border-l-4 border-amber-500 p-2.5 rounded-r-lg text-[11px] text-amber-800">
+                    <p class="font-semibold"><i class="fa-solid fa-circle-nodes mr-1"></i> Integrasi Google Drive / Apps Script Placeholder:</p>
+                    <p>Di bawah ini diisi link file Google Drive hasil kelola Apps Script.</p>
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-xs font-bold uppercase mb-1">Tautan Google Drive URL</label>
+                    <input type="url" id="docDriveUrl" placeholder="https://drive.google.com/..." required class="w-full p-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="pt-2 flex justify-end space-x-2 border-t">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 border rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium shadow transition">Simpan & Tautkan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // 1. DATA PLACEHOLDER (DUMMY DATA JSON) - Siap Dipetakan ke Google Sheets API
+        let dummyDatabase = [
+            { id: 1, name: "Laporan Pertanggungjawaban Pokir Reses I", date: "2026-02-15", type: "PDF", category: "laporan", desc: "Selesai Verifikasi", url: "https://drive.google.com" },
+            { id: 2, name: "Evaluasi Pelaksanaan Pokir Triwulan IV 2025", date: "2026-01-10", type: "XLSX", category: "laporan", desc: "Final", url: "https://drive.google.com" },
+            { id: 3, name: "Usulan Pokir Dapil I Singkep Pembangunan Jalan", date: "2026-03-01", type: "PDF", category: "pokir2026", desc: "Usulan Baru", url: "https://drive.google.com" },
+            { id: 4, name: "Daftar Aspirasi Pokir Dapil II Lingga Utara Sektor Perikanan", date: "2026-04-12", type: "DOCX", category: "pokir2026", desc: "Proses Review", url: "https://drive.google.com" },
+            { id: 5, name: "Kompilasi Pokir DPRD Terakomodir APBD 2025", date: "2025-05-20", type: "PDF", category: "pokir2025", desc: "Arsip Pengesahan", url: "https://drive.google.com" },
+            { id: 6, name: "Master Rekapitulasi Pokir Lingga 2020-2025", date: "2025-12-30", type: "XLSX", category: "rekap", desc: "Data Agregat", url: "https://drive.google.com" }
+        ];
+
+        // Aplikasi State
+        let currentUser = null;
+        let activeMenu = 'dashboard';
+        let charts = {};
+
+        // 2. LOGIKA AUTENTIKASI (LOGIN & ROLE SYSTEM)
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Simulasi pencocokan database user (nantinya dicocokkan dengan Spreadsheet data via backend endpoint)
+            if (email === 'admin@lingga.go.id' && password === 'admin123') {
+                currentUser = { email: email, role: 'Admin', name: 'Super Admin DPRD' };
+            } else if (email === 'user@lingga.go.id' && password === 'user123') {
+                currentUser = { email: email, role: 'User', name: 'Staf Umum / Publik' };
+            } else {
+                alert('Email atau Kata Sandi Salah! Silakan gunakan akun simulasi yang tertera.');
+                return;
+            }
+
+            // Inisialisasi UI Aplikasi Pasca Login
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Set Profil Info
+            document.getElementById('userProfileName').innerText = currentUser.name;
+            document.getElementById('userProfileRole').innerText = currentUser.role;
+            document.getElementById('userAvatar').innerText = currentUser.role === 'Admin' ? 'A' : 'U';
+            
+            // Atur Visibilitas Kontrol Admin
+            if (currentUser.role === 'Admin') {
+                document.getElementById('adminActionSection').classList.remove('hidden');
+                document.getElementById('userProfileRole').className = "inline-block bg-orange-500 text-[9px] uppercase px-2 py-0.5 rounded font-bold mt-0.5";
+            } else {
+                document.getElementById('adminActionSection').classList.add('hidden');
+                document.getElementById('userProfileRole').className = "inline-block bg-gray-500 text-[9px] uppercase px-2 py-0.5 rounded font-bold mt-0.5";
+            }
+
+            // Load Awal
+            refreshDashboardData();
+            initCharts();
+            switchMenu('dashboard');
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+            if (charts.bar) charts.bar.destroy();
+            if (charts.pie) charts.pie.destroy();
+        }
+
+        // 3. LOGIKA SIDEBAR NAVIGASI COLLAPSIBLE & MENU SWITCH
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-16');
+            
+            // Toggle text visibility di sidebar
+            const texts = document.querySelectorAll('.nav-text, .sidebar-brand');
+            texts.forEach(el => el.classList.toggle('hidden'));
+        }
+
+        function switchMenu(menuId) {
+            activeMenu = menuId;
+            
+            // Reset state kelas aktif tombol menu
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.className = "menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 text-gray-300 hover:bg-blue-800 hover:text-white";
+            });
+
+            // Set visual aktif ke tombol terpilih
+            const activeBtn = document.getElementById(`btn-${menuId}`);
+            if (activeBtn) activeBtn.className = "menu-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition duration-200 bg-blue-800 text-white shadow";
+
+            // Sembunyikan semua views kontainer utama
+            document.querySelectorAll('.content-view').forEach(view => view.classList.add('hidden'));
+
+            if (menuId === 'dashboard') {
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                refreshDashboardData();
+                updateCharts();
+            } else {
+                document.getElementById('view-category').classList.remove('hidden');
+                
+                // Konfigurasi Judul Kategori sesuai Pilihan Menu
+                const titleMapping = {
+                    'laporan': '📊 Kelompok Dokumen Laporan',
+                    'pokir2026': '📥 Kelompok Pokir DPRD Tahun 2026',
+                    'pokir2025': '📥 Kelompok Pokir DPRD Tahun 2025',
+                    'rekap': '📝 Kelompok Rekap Pokir'
+                };
+                document.getElementById('categoryTitle').innerText = titleMapping[menuId] || 'Kategori Dokumen';
+                
+                renderTableData(getFilteredData(menuId));
+            }
+        }
+
+        // 4. LOGIKA PENGOLAHAN DATA & TABEL
+        function getFilteredData(category) {
+            return dummyDatabase.filter(doc => doc.category === category);
+        }
+
+        function renderTableData(dataList) {
+            const tbody = document.getElementById('documentTableBody');
+            const countBadge = document.getElementById('tableCountBadge');
+            tbody.innerHTML = '';
+            countBadge.innerText = `Menampilkan: ${dataList.length} Berkas`;
+
+            if (dataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-400 italic bg-gray-50">Tidak ada arsip berkas ditemukan dalam kelompok ini.</td></tr>`;
+                return;
+            }
+
+            dataList.forEach(doc => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
+                
+                // Cek Role untuk tombol aksi hapus (Hanya Admin)
+                const deleteButtonHtml = (currentUser && currentUser.role === 'Admin') 
+                    ? `<button onclick="deleteDocument(${doc.id})" class="text-red-600 hover:text-red-900 font-medium px-2 py-1 rounded hover:bg-red-50 transition" title="Hapus Permanen"><i class="fa-solid fa-trash-can"></i></button>`
+                    : '';
+
+                tr.innerHTML = `
+                    <td class="py-3 px-5 font-medium text-gray-800 flex items-center space-x-3">
+                        <i class="fa-regular ${getFileIcon(doc.type)} text-lg text-blue-800"></i>
+                        <span class="truncate max-w-xs md:max-w-md">${doc.name}</span>
+                    </td>
+                    <td class="py-3 px-5 text-gray-500 whitespace-nowrap">${formatDateString(doc.date)}</td>
+                    <td class="py-3 px-5"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 border rounded text-xs font-semibold">${doc.type}</span></td>
+                    <td class="py-3 px-5 text-gray-600 text-xs">${doc.desc || '-'}</td>
+                    <td class="py-3 px-5 text-right space-x-1 whitespace-nowrap">
+                        <a href="${doc.url}" target="_blank" class="inline-block text-blue-600 hover:text-blue-900 font-medium px-2 py-1 rounded hover:bg-blue-50 transition" title="Lihat File"><i class="fa-solid fa-eye"></i></a>
+                        <a href="${doc.url}" target="_blank" class="inline-block text-emerald-600 hover:text-emerald-900 font-medium px-2 py-1 rounded hover:bg-emerald-50 transition" title="Unduh File"><i class="fa-solid fa-cloud-arrow-down"></i></a>
+                        ${deleteButtonHtml}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 5. FITUR REAL-TIME SEARCH GLOBAL
+        function handleGlobalSearch(keyword) {
+            if (!keyword.trim()) {
+                // Jika pencarian kosong, kembalikan ke menu aktif asal
+                switchMenu(activeMenu);
+                return;
+            }
+
+            // Cari di seluruh kelompok data berdasarkan Nama, Jenis, atau Tanggal
+            const result = dummyDatabase.filter(doc => 
+                doc.name.toLowerCase().includes(keyword.toLowerCase()) ||
+                doc.type.toLowerCase().includes(keyword.toLowerCase()) ||
+                doc.date.includes(keyword)
+            );
+
+            // Buka halaman kategori secara paksa untuk menampilkan list pencarian global
+            document.querySelectorAll('.content-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById('view-category').classList.remove('hidden');
+            document.getElementById('categoryTitle').innerText = `🔍 Hasil Pencarian Global: "${keyword}"`;
+            
+            renderTableData(result);
+        }
+
+        // Helper Desain Ikon Berkas
+        function getFileIcon(type) {
+            switch(type.toUpperCase()) {
+                case 'PDF': return 'fa-file-pdf text-rose-600';
+                case 'XLSX': case 'XLS': return 'fa-file-excel text-emerald-600';
+                case 'DOCX': case 'DOC': return 'fa-file-word text-blue-600';
+                default: return 'fa-file-lines text-gray-500';
+            }
+        }
+
+        function formatDateString(dateStr) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateStr).toLocaleDateString('id-ID', options);
+        }
+
+        // 6. MANAJEMEN STATISTIK & GRAFIK (CHART.JS)
+        function refreshDashboardData() {
+            const total = dummyDatabase.length;
+            const laporan = dummyDatabase.filter(d => d.category === 'laporan').length;
+            const pokir2026 = dummyDatabase.filter(d => d.category === 'pokir2026').length;
+            const pokir2025 = dummyDatabase.filter(d => d.category === 'pokir2025').length;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-laporan').innerText = laporan;
+            document.getElementById('stat-2026').innerText = pokir2026;
+            document.getElementById('stat-2025').innerText = pokir2025;
+        }
+
+        function initCharts() {
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+
+            // Skema data grafik
+            const counts = [
+                dummyDatabase.filter(d => d.category === 'laporan').length,
+                dummyDatabase.filter(d => d.category === 'pokir2026').length,
+                dummyDatabase.filter(d => d.category === 'pokir2025').length,
+                dummyDatabase.filter(d => d.category === 'rekap').length
+            ];
+
+            charts.bar = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Laporan', 'Pokir 2026', 'Pokir 2025', 'Rekap Pokir'],
+                    datasets: [{
+                        label: 'Jumlah Dokumen Tersimpan',
+                        data: counts,
+                        backgroundColor: ['#1e3a8a', '#10b981', '#f97316', '#a855f7'],
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            charts.pie = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Laporan', 'Pokir 2026', 'Pokir 2025', 'Rekap Pokir'],
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: ['#1e3a8a', '#10b981', '#f97316', '#a855f7']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateCharts() {
+            if (!charts.bar || !charts.pie) return;
+            const counts = [
+                dummyDatabase.filter(d => d.category === 'laporan').length,
+                dummyDatabase.filter(d => d.category === 'pokir2026').length,
+                dummyDatabase.filter(d => d.category === 'pokir2025').length,
+                dummyDatabase.filter(d => d.category === 'rekap').length
+            ];
+            charts.bar.data.datasets[0].data = counts;
+            charts.pie.data.datasets[0].data = counts;
+            charts.bar.update();
+            charts.pie.update();
+        }
+
+        // 7. OPERASI INTERAKSI ADMIN (UPLOAD / DELETE) - BACKEND STANDBY PLACEHOLDER
+        function openUploadModal() {
+            document.getElementById('docCategory').value = activeMenu !== 'dashboard' ? activeMenu : 'laporan';
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+            document.getElementById('uploadForm').reset();
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            // Mengambil input objek form
+            const newDoc = {
+                id: Date.now(), // Unique ID dummy
+                name: document.getElementById('docName').value,
+                date: document.getElementById('docDate').value,
+                category: document.getElementById('docCategory').value,
+                type: document.getElementById('docType').value.toUpperCase(),
+                desc: document.getElementById('docDesc').value || 'Tersimpan',
+                url: document.getElementById('docDriveUrl').value
+            };
+
+            /* 💡 STRUKTUR BACKEND INTEGRASI GOOGLE APPS SCRIPT:
+               Untuk menghubungkan ke Google Sheets & Drive, Anda cukup melakukan fetch API di sini:
+               
+               fetch('URL_GOOGLE_APPS_SCRIPT_DEPLOYMENT', {
+                   method: 'POST',
+                   body: JSON.stringify(newDoc)
+               }).then(res => res.json()).then(data => { // logika callback })
+            */
+
+            // Simpan lokal dummy database
+            dummyDatabase.push(newDoc);
+            alert('Arsip berkas berhasil disimpan dan ditautkan dengan Google Drive!');
+            
+            closeUploadModal();
+            
+            // Refresh tampilan data tabel
+            if (activeMenu === 'dashboard') {
+                refreshDashboardData();
+            } else {
+                switchMenu(activeMenu);
+            }
+        }
+
+        function deleteDocument(id) {
+            if (confirm('Apakah Anda yakin akan menghapus permanen dokumen arsip ini dari sistem?')) {
+                dummyDatabase = dummyDatabase.filter(doc => doc.id !== id);
+                // Refresh table atau dashboard seketika
+                if (activeMenu === 'dashboard') {
+                    refreshDashboardData();
+                } else {
+                    renderTableData(getFilteredData(activeMenu));
+                }
+            }
+        }
+    </script>
+</body>
+</html>
